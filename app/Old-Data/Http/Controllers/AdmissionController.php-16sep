@@ -1,0 +1,354 @@
+<?php
+namespace App\Http\Controllers;
+  use App\Http\Controllers\CollegeBaseController;
+  use App\category_model;
+  use Illuminate\Http\Request;
+  use App\Models\StudentStatus;
+  use App\Models\Student;
+
+  use App\Models\Faculty;
+  use App\Enquiry;
+  use App\Branch;
+  use App\Admission;
+  use Auth;
+  use DB, Session;
+
+class AdmissionController extends CollegeBaseController
+{
+    
+    protected $base_route = 'admission';
+    protected $view_path = 'admission';
+    protected $panel = 'Admission';
+    protected $folder_path;
+    protected $folder_name = 'admissionProfile';
+    protected $filter_query = [];
+public function index()
+    {
+    $org_id = Auth::user()->org_id;
+    $branch_id = Session::get('activeBranch');
+    
+    $academic_status = StudentStatus::select('id', 'title')->Active()->pluck('title','id')->toArray();
+
+    $branches = Branch::select('branch_name','branch_address','id','org_id')->where('org_id', $org_id)->get();
+    $category = category_model::select('id', 'category_name')->pluck('category_name','id')->toArray();
+
+    $courses = Faculty::select('id', 'faculty', 'status')
+            ->where('branch_id' , $branch_id) 
+            ->orderBy('faculty')
+            ->get();
+      
+    	return view('admission.index', compact('branches','academic_status','courses','category','branch_id'));
+    }
+
+
+    public function enquiry( $id)
+    {
+
+     $org_id = Auth::user()->org_id;
+    $data = [];
+    $key = $id-1;
+    //return $key;
+    $data['enquiry'] = Enquiry::get()->where('id', $id);
+    //return $data;
+    //return $data['enquiry'][$key]->branch_id;
+   if (!empty($data['enquiry'][$key]->first_name)) {
+    $data['first'] = $data['enquiry'][$key]->first_name;
+    //return $data;
+   }
+   if (empty($data['enquiry'][$key]->first_name)) {
+    $data['first'] = '';
+   
+   }
+    
+    if (!empty($data['enquiry'][$key]->middle_name)) {
+    $data['mid'] = $data['enquiry'][$key]->middle_name;
+    //return $data;
+   } 
+     if (empty($data['enquiry'][$key]->middle_name)) {
+    $data['mid'] = '';
+    //return $data;
+   }
+
+    if (!empty($data['enquiry'][$key]->last_name)) {
+    $data['last'] = $data['enquiry'][$key]->last_name;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->last_name)) {
+    $data['last'] = '';
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->enq_date)) {
+    $data['date'] = $data['enquiry'][$key]->enq_date;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->enq_date)) {
+    $data['date'] = '';
+    //return $data;
+   }
+  
+  if (!empty($data['enquiry'][$key]->date_of_birth)) {
+    $data['dob'] = $data['enquiry'][$key]->date_of_birth;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->date_of_birth)) {
+    $data['dob'] = '';
+    //return $data;
+   }
+     if (!empty($data['enquiry'][$key]->address)) {
+    $data['address'] = $data['enquiry'][$key]->address;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->address)) {
+    $data['address'] = '';
+    //return $data;
+   }
+     if (!empty($data['enquiry'][$key]->country)) {
+    $data['country'] = $data['enquiry'][$key]->country;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->country)) {
+    $data['country'] = '';
+    //return $data;
+   }
+      if (!empty($data['enquiry'][$key]->state)) {
+    $data['state'] = $data['enquiry'][$key]->state;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->state)) {
+    $data['state'] = '';
+    //return $data;
+   }
+      if (!empty($data['enquiry'][$key]->city)) {
+    $data['city'] = $data['enquiry'][$key]->city;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->state)) {
+    $data['city'] = '';
+    //return $data;
+   }
+     if (!empty($data['enquiry'][$key]->gender)) {
+    $data['gender'] = $data['enquiry'][$key]->gender;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->gender)) {
+    $data['gender'] = '';
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->course=='Select Faculty')) {
+    $data['course'] = '';
+    //return $data;
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->course!='Select Faculty')) {
+    $data['course'] = $data['enquiry'][$key]->course;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->course)) {
+    $data['course'] = '';
+    //return $data;
+   }
+   if (!empty($data['enquiry'][$key]->academic_status=='Select Status')) {
+    $data['academic_status'] = '';
+    //return $data;
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->academic_status!='Select Status')) {
+    $data['academic_status'] = $data['enquiry'][$key]->academic_status;
+    //return $data;
+   }
+     if (empty($data['enquiry'][$key]->academic_status)) {
+    $data['academic_status'] = '';
+    //return $data;
+   }
+
+    if (empty($data['enquiry'][$key]->email)) {
+    $data['email'] = ' ';
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->email)) {
+    $data['email'] = $data['enquiry'][$key]->email;
+    //return $data;
+    
+   }
+   
+    if (empty($data['enquiry'][$key]->mobile)) {
+    $data['mobile'] = '';
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->mobile)) {
+    $data['mobile'] = $data['enquiry'][$key]->mobile;
+    //return $data;
+    
+   }
+
+    if (empty($data['extra_info'][$key]->extra_info)) {
+    $data['extra_info'] = '';
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->extra_info)) {
+    $data['extra_info'] = $data['enquiry'][$key]->extra_info;
+    //return $data;
+    
+   }
+
+    if (empty($data['enquiry'][$key]->responce)) {
+    $data['responce'] = '';
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->responce)) {
+    $data['responce'] = $data['enquiry'][$key]->responce;
+    //return $data;
+    
+   }
+     if (empty($data['enquiry'][$key]->reference)) {
+    $data['reference'] = '';
+    //return $data;
+   }
+    if (!empty($data['enquiry'][$key]->reference)) {
+    $data['reference'] = $data['enquiry'][$key]->reference;
+    
+    
+   }
+    $branch_id=$data['enquiry'][$key]->branch_id;
+   $data['branch_id']=$data['enquiry'][$key]->branch_id;
+   $branch = Branch::select('branch_name')->where('id',$branch_id)->get();
+  
+    if (!empty($data['enquiry'][$key]->branch_id)) {
+    $data['branch_name'] =$branch[0]['branch_name'];
+  }
+  //return $data;
+    $academic_status = StudentStatus::select('id', 'title')->Active()->pluck('title','id')->toArray();
+   // $academic_status = array_prepend($Status);
+
+    $branches = Branch:: select('branch_name','branch_address','id','org_id','branch_logo')->where('org_id', $org_id)->get();
+     // $courses = Faculty::select('id', 'faculty')->Active()->pluck('faculty','id')->toArray();
+      $courses = $this->activeFaculties();
+       //$courses = array_prepend($faculties,'Select Course',0);
+    //return  $courses;
+
+      return view('admission.index', compact('data','branches','academic_status','courses'));
+    }
+
+
+    public function store(Request $request)
+    {
+
+      
+      //$pdf = PDF::loadView('pdf.invoice', $data);
+      //return $pdf->download('invoice.pdf');
+      //return $request;
+      $branch_id = Session::get('activeBranch'); //Auth::user()->branch_id;
+      $branches = Branch:: select('branch_name','branch_address','branch_email','branch_mobile','branch_logo')->where('id', $branch_id)->get();
+      //return $branches[0]['branch_name'];
+
+      //dd();
+    
+      $admission =Admission::create($request->all());
+
+      $lastrecord = Admission::select('admissions.*', 'faculties.faculty as course')->leftjoin('faculties', function($join){
+          $join->on('faculties.id', '=', 'admissions.course');
+      })->orderBy('id', 'DESC')->first();
+      
+      
+      return view('admission.include.printform', compact('lastrecord','branches'));
+       
+        
+    }
+
+
+
+    public function admissionlist(Request $request)
+    {
+      $branch_id = Session::get('activeBranch');//Auth::user()->branch_id;
+        //return $branch_id;
+        
+      $data['faculties'] = $this->activeFaculties();
+      $data['category_name'] = category_model::get();
+      //$admission_list = Admission::get()->all();
+      //return $admission_list;
+        
+      //$admission_list = Admission::get()->where('branch_id', $branch_id)->all();
+      $admission_list = Admission::select('admissions.*', 'faculties.faculty as course')
+      ->leftJoin('faculties', function($join) {
+        $join->on('faculties.id', '=', 'admissions.course');      
+      })->where(function ($query) use ($request) {
+      
+        if($request->name) {
+          $query->where('admissions.first_name', 'like', '' . $request->name . '%')
+          ->orWhere('admissions.first_name', 'like', '%' . $request->name . '%')
+          ->orWhere('admissions.first_name', 'like', '%' . $request->name . '');
+          $this->filter_query['name'] = $request->name;
+        }
+
+        if ($request->faculty) {
+            $query->where('admissions.course', 'like', '%' . $request->faculty . '%');
+            $this->filter_query['faculty'] = $request->faculty;
+        }
+
+        if ($request->mobile) {
+            $query->where('admissions.mobile', $request->mobile)->orWhere('admissions.mobile', 'like', '%'.$request->mobile.'%');
+            $this->filter_query['mobile'] = $request->mobile;
+        }
+
+        if ($request->category) {
+            $query->where('category_id', $request->category);
+            $this->filter_query['category'] = $request->category; 
+        }
+
+        if ($request->has('reg_start_date') && $request->has('reg_end_date')) {
+            $query->whereBetween('admissions.created_at', [$request->get('reg_start_date'), $request->get('reg_end_date')]);
+            $this->filter_query['reg-start-date'] = $request->get('reg_start_date');
+            $this->filter_query['update-end-date'] = $request->get('reg_end_date');
+        }
+      })->where('admissions.branch_id', $branch_id)->orderBy('id', 'DESC')->get();
+      $data['filter_query'] = $this->filter_query;
+      //dd("inside==>".$branch_id);
+      return view('admission.include.list', compact('admission_list', 'data'));
+
+      //dd('hello');
+
+    }
+
+    public function admissionedit($id)
+    {
+    $org_id = Auth::user()->org_id;
+    $data = Branch:: select('branch_name','branch_title','id','org_id')->where('org_id', $org_id)->get();
+    $courses = Faculty::select('id', 'faculty')->Active()->pluck('faculty','id')->toArray();
+
+    $academic_status = StudentStatus::select('id', 'title')->Active()->pluck('title','id')->toArray();
+
+    $category = category_model::select('id', 'category_name')->pluck('category_name','id')->toArray();
+
+    $enquiry = Admission::where('id', $id)->get();
+    $branch_id = $enquiry[0]['branch_id'];
+    $branch= Branch::where('id', $branch_id)->get();
+    //return $enquiry;
+    $selected="";
+    return view('admission.edit', compact('enquiry', 'academic_status','courses','data','branch','category', 'selected'));
+  
+    }
+
+
+
+    public function admissionupdate(Request $request, $id)
+    {   
+        //dd($id);
+        $row = Admission::find($id);
+         $row->update($request->all());
+         // return 'updated';
+         // dd();
+        //return $row;
+         //Session::set('branch', $branch_id);
+         //$request['branch_id']=1;
+         //$enquiry = Enquiry::create($request->all());
+         //return'inserted';
+         //return view('enquiry.enquiry');
+         return redirect()->route('.admission_list')->with('msg', 'Admission form updated sucessfully');
+
+    }
+
+
+
+
+   
+}

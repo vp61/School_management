@@ -1,0 +1,509 @@
+@if(Session::get('activeBranch') == 2)
+<div class="row">
+    <div class="receipt-header">
+        <div class="col-xs-12 col-sm-12 col-md-12 ">
+            <div class="pull-left">
+                <img class="img-responsive" alt="" src="{{ asset('images/logo/')}}/main.png" style="width: 62PX;text-align: left;">
+            </div>
+            <div class="text-center">
+               <h3><b>{{$branch->branch_name}}</b></h3>
+                
+                <b><u>ACADEMIC SESSION {{$session->session_name}}</u></b>
+               <br>
+               
+                <b><u>Report Card</u></b>
+                <br>
+                
+                   
+            </div>
+            <div class="pull-right">
+                <img class="img-responsive" alt="" src="{{ asset('images/logo/')}}/{{$branch->branch_logo}}" style="width: 62PX;text-align: left;position: absolute;right: 1%;top: 0px;">
+            </div>
+        </div>
+    </div>   
+</div>
+
+@else
+<div class="row">
+    <div class="receipt-header">
+        <div class="col-xs-12 col-sm-12 col-md-12 ">
+            <div class="pull-left">
+                <img class="img-responsive" alt="" src="{{ asset('images/logo/')}}/{{$branch->branch_logo}}" style="width: 62PX;text-align: left;">
+            </div>
+            <div class="text-center">
+               <h3><b>{{$branch->branch_name}}</b></h3>
+                
+                <b><u>ACADEMIC SESSION {{$session->session_name}}</u></b>
+               <br>
+               
+                <b><u>Report Card</u></b>
+                <br>
+                
+                   
+            </div>
+
+        </div>
+    </div>   
+</div>
+    
+@endif
+                
+<div class="row">
+    @if($student)
+        <div class="col-xs-12 col-sm-12 col-md-12 name_fields">
+            <div class="row">
+                <div class="col-sm-4 col-xs-4 col-md-4">
+                    <table class="table no_border_table student_table">
+                        <tr>
+                            <td class="strong">Roll No</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="strong">{{env('course_label')}} & Sec.</td>
+                            <td>{{$student->course}} /{{$student->semester}}</td>
+                        </tr>
+                        <tr>
+                            <td class="strong">Father's Name</td>
+                            <td>{{$student->father_first_name}}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-sm-4 col-xs-4 col-md-4">
+                    
+                </div>
+                <div class="col-sm-4 col-xs-4 col-md-4">
+                    <table class="table no_border_table student_table">
+                        <tr>
+                            <td class="strong">Student Name</td>
+                            <td>{{$student->first_name}}</td>
+                        </tr>
+                        <tr>
+                            <td class="strong">DOB</td>
+                            <td>{{\Carbon\Carbon::parse($student->date_of_birth)->format('d-M-Y')}}</td>
+                        </tr>
+                        <tr>
+                            <td class="strong">Attendance</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-sm-2 col-xs-2 col-md-2 pull-left" >
+                    
+                    {{--
+                    @if($student->student_image)
+                        <div style="border: 1px solid black; height:100px;width: 100%">
+                            <img src="{{asset('images/studentProfile/'.$student->student_image)}}" height="100%" width="100%" >
+                        </div>
+                        
+                    @endif
+                    --}}
+                </div>
+            </div>
+        </div> 
+    @endif
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        @if(isset($term))
+            <table class="table table-bordered table-striped table-hover">
+                <?php
+                    $rep_cont = new App\Http\Controllers\Exam\ExamReportController;
+                ?>
+                @if(isset($term))
+                    @if(count($term)>0)
+                        <?php 
+                            //TERM NAME 
+                        ?>
+                        <tr>
+                            <th rowspan="2" class="strong">Subject</th>
+                            @foreach($term as $t_name => $type)
+                                <?php
+                                    $col_span = count($type);
+                                    $t_name_arr = explode('-', $t_name);
+                                    $t_name = $t_name_arr[1];
+                                ?>
+
+                                <th colspan="{{$col_span * 2}}" class="text-center">
+                                    {{$t_name}}
+                                </th>
+                            @endforeach
+                            <th colspan="2"></th>
+                        </tr>
+                        <?php 
+                            //TERM NAME 
+                        ?>
+                        <tr class="strong">
+                            @foreach($term as $t_name => $type)
+
+                                    @foreach($type as $type_id => $type_title)
+                                        <th colspan="2" class="text-center">{{$type_title}}</th>
+                                    @endforeach
+                            @endforeach
+                            <th colspan="2" class="text-center"></th>
+                            
+                        </tr>
+                        <tr class="strong">
+                            <td></td>
+                            @foreach($term as $t_name => $type)
+
+                                    @foreach($type as $type_id => $type_title)
+                                        <td>Obtained Marks</td>
+                                        
+                                        <td>Max Marks</td>
+                                        <?php
+                                            $col_total_max[$type_id] =0;
+                                            $col_total_obtained[$type_id] =0;
+                                        ?>
+                                    @endforeach
+                            @endforeach
+                            <td>Grade</td>
+                            <!--<td>Highest Marks Obtained In Class</td>-->
+                        </tr>
+                    @endif
+                @endif
+                <?php
+                    $temp_arr =[];
+                    // dd($term,$subject);
+                ?>
+                @if(isset($term) && isset($subject))
+                    @if((count($term)>0) && (count($subject)>0))
+                        
+                        @foreach($subject as $sub_id => $term_arr)
+                            <?php
+                            
+                                $row_total = 0;
+                                $row_total_obtained = 0;
+                               
+                                $sub_name = explode('-', $sub_id);
+                            ?>
+                            <tr>
+                                <td class='strong'>{{$sub_name[1]}}</td>
+
+                                @foreach($term_arr as $term_name => $type_arr) 
+
+                                    @foreach($term as $t_name => $term_type_arr)
+                                        <?php
+                                            $t_name_arr = explode('-', $t_name);
+                                            $t_id = $t_name_arr[0]; //term id of term array
+
+                                            $t_name_arr = explode('-', $term_name);
+                                            $term_id = $t_name_arr[0]; //term id of subject array
+                                        ?>
+                                        @if($t_id == $term_id)
+                                            @foreach($type_arr as $type_id => $sub)
+                                                
+                                                @foreach($term_type_arr as $term_type_id => $type_name)
+                                                    @if($term_type_id == $type_id)
+                                                        <td>
+                                                            
+                                                            @if($sub!='')
+                                                                <?php
+                                                                    $last_exam_id = $sub->id;
+                                                                    if($sub->attendance != 3){
+                                                                        $row_total = $row_total +  $sub->max_mark;
+                                                                    }
+                                                                   
+                                                                   $row_total_obtained = $row_total_obtained +  $sub->obtained_mark;
+                                                                    /*quarter wise total max mark */
+                                                                    if(isset($col_total_max[$term_type_id])){
+                                                                        if($sub->attendance != 3){
+                                                                            $col_total_max[$term_type_id] = $col_total_max[$term_type_id] + $sub->max_mark;
+                                                                        }    
+                                                                    }
+                                                                    /*quarter wise total obtained mark */
+                                                                    if(isset($col_total_obtained[$term_type_id])){
+                                                                        $col_total_obtained[$term_type_id] = $col_total_obtained[$term_type_id] + $sub->obtained_mark;
+                                                                    }
+                                                                   
+
+                                                                ?>
+                                                                @if($sub->attendance == 1)
+                                                                    {{isset($sub->obtained_mark)?$sub->obtained_mark:'0'}}
+                                                                @elseif($sub->attendance == 3)
+                                                                    <b class="red">ML</b>
+                                                                @else        
+                                                                    <b class="red">AB</b>
+                                                                @endif
+                                                            @else
+                                                                -
+                                                            @endif
+                                                        </td>
+                                                        <td>{{isset($sub->max_mark)?$sub->max_mark:'-'}}</td>
+                                                    @endif
+                                                @endforeach
+
+                                            @endforeach
+                                        @endif
+
+                                    @endforeach
+
+                                @endforeach
+                                <?php
+                                
+                                    $percentage = ($row_total_obtained/$row_total)*100;
+                                    // dd($percentage);
+                                    $grade = $rep_cont->getGrade($last_exam_id,round($percentage));
+
+                                ?>
+                                <td>{{$grade}}</td>
+                                <?php /*
+                                <td>
+                                    <?php
+                                        if($sub != ''){
+                                            echo $rep_cont->maxMarkByExamId($sub->id);
+                                        }else{
+                                            echo '-';
+                                        }
+                                        
+                                    ?>
+                                </td>
+                                */ ?>
+                            </tr>    
+                        @endforeach
+                        <tr class="strong">
+                            <?php
+                                $gt_max_mark = 0;
+                                $gt_obtained_mark = 0;
+                            ?>
+                            @foreach($term_arr as $term_name => $type_arr) 
+                                @foreach($type_arr as $type_id => $type)
+                                    <?php
+                                        $gt_max_mark = $gt_max_mark + $col_total_max[$type_id];
+                                        $gt_obtained_mark = $gt_obtained_mark + $col_total_obtained[$type_id];
+
+                                    ?>
+                                @endforeach
+                            @endforeach
+                        </tr>
+                    @endif
+                @endif
+                
+            </table>
+            <table class="table table-bordered strong">
+                <tr>
+                   <?php
+                        if(isset($gt_obtained_mark)){
+                            $gt_obtained_mark = $gt_obtained_mark;
+                        }else{
+                            $gt_obtained_mark =0;
+                        }
+                        if(isset($gt_obtained_mark)){
+                            $gt_obtained_mark = $gt_obtained_mark;
+                            $gt_percentage = ($gt_obtained_mark/$gt_max_mark)*100;
+                        }else{
+                            $gt_obtained_mark =0;
+                        }
+                        
+                        $grade = $rep_cont->getGrade($last_exam_id,round($gt_percentage));
+                    ?>
+                    <td>Total</td>
+                    <td>{{$gt_obtained_mark}}</td>
+                    <td>{{$gt_max_mark}}</td>
+                    <td>Percentage</td>
+                    <td>{{number_format((float)$gt_percentage, 2, '.', '')}}%</td>
+                    <td>Grade</td>
+                    <td>{{$grade}}</td>
+                </tr>
+            </table>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 no-pad">
+                   <table class="table table-bordered" style="margin: 0px;">
+                        <tr>
+                            
+                            <td colspan="" class="text-center strong">Co-Scholastic Area</td>
+                        </tr>
+                    </table>     
+                </div>
+              
+                        <div class="col-sm-8 col-xs-8 no-pad">
+                            <table class="table table-bordered">
+                               
+                                <tr class="strong">
+                                    @if(isset($term))
+                                        @foreach($term as $t_name => $type)
+                                            <?php
+                                                $t_name_arr = explode('-', $t_name);
+                                                $t_name = $t_name_arr[1];
+                                            ?>
+                                            <td colspan="2" class="text-center">
+                                                {{$t_name}}
+                                            </td>
+                                        @endforeach
+                                    @endif    
+                                    <!-- <td colspan="2"></td> -->
+                                </tr>
+
+                                <!-- marksheet change -->
+                                @if(isset($optional_subject) && isset($term))
+
+                                    @foreach($optional_subject as $key=>$value)
+
+                                      <?php
+                            
+                                        
+                                    $op_sub = explode('-', $key);
+
+                                     ?>
+
+                                    <tr class="strong">
+                                        
+                                        @foreach($term as $t_name => $type)
+                                         
+                                        <?php 
+
+                                            $mm = 0;
+                                            $om = 0;
+
+                                        ?>
+                                            @foreach($value as $v_t_name => $op_exam_data)
+                                                <?php
+                                                    foreach ($op_exam_data as $op_exam_id => $op_mark_data) {
+                                                        
+                                                        
+                                                    }
+                                                    if(!empty($op_mark_data)){
+                                                        if($t_name == $v_t_name){
+                                                            $mm += $op_mark_data->max_mark;
+                                                            $om += $op_mark_data->obtained_mark;
+                                                        }
+                                                    }
+
+                                                ?>
+
+                                            @endforeach
+                                            <td>{{$op_sub[1]}} (MM - {{$mm}})</td>
+                                            <td>{{$om}}&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                        @endforeach
+                                    </tr>
+                                    @endforeach
+                                @endif
+                                <!-- marksheet change -->
+                                
+                                 <?php /* <tr class="strong">
+                                    @foreach($term as $t_name => $type)
+
+                                        <td style="max-width:50%">Art</td>
+                                        <td></td>
+                                        
+                                    @endforeach
+                                    <!-- <td colspan="2">Height</td> -->
+                                </tr>
+                              
+                                <tr class="strong">
+                                    @foreach($term as $t_name => $type)
+
+                                        <td>Physical Edu.</td>
+                                        <td></td>
+                                        <td></td>
+                                    @endforeach
+                                    <td colspan="2"></td>
+                                </tr>
+                               
+                                <tr class="strong">
+                                    @foreach($term as $t_name => $type)
+
+                                        <td>Music</td>
+                                        <td></td>
+                                        <!-- <td></td> -->
+                                    @endforeach
+                                    <!-- <td class="text-center" colspan="2">Additional</td> -->
+                                </tr>
+                                <?php /*
+                                <tr class="strong">
+                                    @foreach($term as $t_name => $type)
+
+                                        <td>Swimming</td>
+                                        <td></td>
+                                        <td></td>
+                                    @endforeach
+                                    <td>Neatness</td>
+                                    <td></td>
+                                </tr> 
+
+                                <tr class="strong">
+                                    @foreach($term as $t_name => $type)
+
+                                        <td>Activity</td>
+                                        <td></td>
+                                        <td></td>
+                                    @endforeach
+                                    <td>Conduct</td>
+                                    <td></td>
+                                </tr>
+
+                                <tr class="strong">
+                                    @foreach($term as $t_name => $type)
+
+                                        <td>Weight</td>
+                                        <td></td>
+                                        <td></td>
+                                    @endforeach
+                                    <td class="text-center" colspan="2"></td>
+                                </tr>
+                                */ ?>
+                            </table>
+                        </div>
+                     
+                <div class="col-sm-4 col-xs-4 pull-right no-pad">
+                    <table class="table table-bordered">
+                      @foreach($disc as $disc_key=>$disc_val)
+                        <tr>
+                            <td colspan="2"> &nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td class="strong">
+                                {{$disc_key}}
+                            </td>
+                            <td>
+                                @foreach($disc_val as $disc_k=>$disc_v)
+                                 <?php $remark= $disc_v->disciplin_grade; ?>
+                                @endforeach
+                                {{$remark}}
+                            </td>
+                        </tr>
+                        @endforeach
+                       <!--  <tr>
+                            <td class="2"> &nbsp;</td>
+                        </tr>
+                        <tr >
+                            <td class="strong">
+                                Counduct
+                            </td>
+                            <td></td>
+                        </tr> -->
+                    </table>
+                </div>
+            </div>
+            
+            <table class="table no_border_table strong">
+                <tr>
+                    <td rowspan="2" width="20%">Class Teacher's Remark</td>
+                    <td style="border-bottom: 1px solid black"></td>
+                </tr>
+                
+            </table>
+            <table class="table no_border_table strong">
+                <tr class="text-center">
+                    <td class="border_bottom"></td>
+                    <td></td>
+                    <td></td>
+                    <td class="border_bottom"></td>
+                </tr>
+                <tr class="text-center">
+                    
+                    <td>Class Teacher's Signature</td>
+                    <td></td>
+                    <td></td>
+                    <td>Vice Principal's Signature</td>
+                </tr>
+            </table>
+            <p class="strong"><div style="float: left;">Promoted to Class</div> <div style="width: 100px;float: left;" class="border_bottom">&nbsp;</div></p>
+            <br>
+            <p class="strong"><div style="float: left;">New Session commences on</div> <div style="width: 100px;float: left;" class="border_bottom">&nbsp;</div> <div style="float: left;">at</div><div style="width: 100px;float: left;" class="border_bottom">&nbsp;</div></p>
+        @endif
+    </div>   
+</div>
+@if(isset($term))
+    @if(count($term) == 1)
+        
+        
+    @endif
+@endif

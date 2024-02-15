@@ -1,0 +1,140 @@
+<div ng-app="myApp" ng-controller="feeCtrl">
+    <div class="form-group">
+    {!! Form::label('course', 'Course', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+      <select name="course" id="course" class="form-control">
+        <option value="">Select Course</option>  
+        @foreach ($courses as $x)-->
+            <option value="{{ $x->id }}" >{{ $x->faculty }}</option>
+        @endforeach 
+        </select>
+        
+        {!! Form::hidden('branch_id', $branch_id, ["class" => ""]) !!}
+        
+        
+    </div> 
+    
+    {!! Form::label('first_name', 'NAME OF STUDENT', ['class' => 'col-sm-2 control-label',]) !!}
+    <div class="col-sm-2">
+        {!! Form::text('first_name', null, ["class" => "form-control border-form upper","required"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'first_name'])
+    </div>
+    
+
+
+    {!! Form::label('Admission Date', 'Admission Date', ['class' => 'col-sm-2 control-label',]) !!}
+    <div class="col-sm-2">
+        {!! Form::date('admission_date', date("Y-m-d"), ["class" => "form-control border-form upper","required"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'first_name'])
+    </div>
+    
+</div>
+<div class="form-group">
+    {!! Form::label('Email', 'Email', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::text('email', null, ["placeholder" => "", "class" => "form-control border-form input-mask-registration"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'reg_no'])
+    </div>
+
+    
+    @foreach ($branches as $x)
+    <input type="hidden" name="org_id" value="{{$x->org_id}}">
+     @endforeach 
+
+    {!! Form::label('Mobile', 'Mobile.', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::number('mobile', null, ["placeholder" => "", "class" => "form-control border-form mobileKValidationCheck","required"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'university_reg'])
+    </div>
+
+    
+    {!! Form::label('academic_status', 'Academic Status', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+    <select name="academic_status" id="department" class="form-control">
+    
+     @foreach ($academic_status as $x)
+    <option value="{{ $x}}">{{ $x}}</option>
+        @endforeach 
+        </select>
+    </div>
+
+</div>
+<div class="form-group">
+    {!! Form::label('date_of_birth', 'Date of Birth', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::date('date_of_birth', null, ["data-date-format" => "yyyy-mm-dd", "class" => "form-control border-form date-picker input-mask-date"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'date_of_birth'])
+    </div>
+
+    {!! Form::label('gender', 'Gender', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::select('gender', ['' => 'Select Gender','MALE' => 'MALE', 'FEMALE' => 'FEMALE', 'OTHER' => 'OTHER'], null, ['class'=>'form-control border-form']); !!}
+        @include('includes.form_fields_validation_message', ['name' => 'gender'])
+    </div>
+
+    {!! Form::label('category_id', 'Category', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+    {{Form::select('category_id', $category, '', ['class'=>'form-control']) }}
+    </div>
+</div> 
+</div>
+
+
+
+
+<div class="label label-warning arrowed-in arrowed-right arrowed">Permanent Address</div>
+<hr class="hr-8">
+<div class="form-group">
+    
+    {!! Form::label('country', 'Country', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-1">
+        {!! Form::text('country', null, ["class" => "form-control border-form upper"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'country'])
+    </div>
+     {!! Form::label('state', 'State', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-1">
+        {!! Form::text('state', null, ["class" => "form-control border-form upper"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'state'])
+    </div>
+    {!! Form::label('city', 'City', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::text('city', null, ["class" => "form-control border-form upper"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'city'])
+    </div>
+    
+    {!! Form::label('address', 'Address', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-md-4">
+        {!! Form::text('address', null, ["class" => "form-control border-form upper"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'address'])
+    </div>
+</div>
+<div class="label label-success arrowed-in arrowed-right arrowed">Some Other Info</div>
+<hr class="hr-8">
+<div class="form-group">
+    {!! Form::label('extra_info', 'Extra Info', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-3">
+        {!! Form::text('extra_info', null, ["placeholder" => "", "class" => "form-control border-form input-mask-registration"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'extra_info'])
+    </div>
+
+    {!! Form::label('responce', 'Response ', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-3">
+        {!! Form::text('responce', null, ["class" => "form-control date-picker border-form input-mask-date"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'responce'])
+    </div>
+
+    {!! Form::label('reference', 'Reference.', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-3">
+        {!! Form::text('reference', null, ["placeholder" => "", "class" => "form-control border-form"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'reference'])
+    </div>
+</div>
+
+<div class="label label-danger arrowed-in arrowed-right arrowed">Admission Fee</div>
+<hr class="hr-8">    <div class="form-group">
+    {!! Form::label('AdmissionFee', 'AdmissionFee.', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-3">
+       {!! Form::text('admission_fee', null, ["placeholder" => "", "class" => "form-control border-form", "required"]) !!}
+       
+    </div>
+    </div>

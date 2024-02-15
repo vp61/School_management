@@ -1,0 +1,153 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\CollegeBaseController;
+ //use \App\Http\Controllers\UserStudent\Student;
+use App\Models\Student;
+use App\Enquiry;
+use App\Branch;    
+use App\category_model;
+use Auth;
+use App\Models\Faculty;
+use App\Models\StudentStatus;
+use Session;
+class EnquiryController extends CollegeBaseController
+{
+    protected $filter_query = [];
+
+	protected $base_route = 'enquiry';
+    protected $view_path = 'enquiry';
+
+    public function index(Request $request)
+    {
+
+    $org_id= 1; //Auth::user('org_id');
+    $branch_id = Session::get('activeBranch');
+    $academic_status = StudentStatus::select('id', 'title')->Active()->pluck('title','id')->toArray();
+    //$academic_status = array_prepend($Status,'Select Status',0);
+
+    $data = Branch::select('branch_name','branch_title','id','org_id')->where('org_id', $org_id)->where('id', $branch_id)->get();
+    $courses = Faculty::select('id', 'faculty', 'status')
+                        ->where('branch_id' , $branch_id) 
+                        ->orderBy('faculty')
+->get();
+    $category=category_model::select('category_name','id')->pluck('category_name', 'id')->toArray();
+       //$courses = array_prepend($faculties,'Select Course',0);
+    //return  $courses;
+    $panel="Enquiry";
+    	return view('enquiry.enquiry', compact('data','academic_status','courses', 'panel','category','branch_id'));
+ 
+    }
+
+
+
+    public function store(request  $request)
+    {   
+        //dd($request);
+         //Session::set('branch', $branch_id);
+         //$request['branch_id']=1;
+         $enquiry = Enquiry::create($request->all());
+         //return'inserted';
+         //return view('enquiry.enquiry');
+         return redirect()->route('.enquiry_list')->with('msg', 'Enquiry submited sucessfully');
+
+    }
+
+
+    public function enquirylist(Request $request)
+    {
+        $branch_id = Session::get('activeBranch');
+        
+        $data['faculties'] = $this->activeFaculties();
+        $data['category_name'] = category_model::get();
+        //$enquiries = Enquiry::get()->where('branch_id', $branch_id)->all();
+        
+        $enquiries = Enquiry::where(function ($query) use ($request){
+            if($request->name) {
+              $query->where('first_name', 'like', '' . $request->name . '%')
+              ->orWhere('first_name', 'like', '%' . $request->name . '%')
+              ->orWhere('first_name', 'like', '%' . $request->name . '');
+              $this->filter_query['name'] = $request->name;
+            }
+
+            if ($request->faculty) { 
+                //die("inside course".$request->faculty);
+                $query->where('course', 'like', '%' . $request->faculty . '%');
+                $this->filter_query['faculty'] = $request->faculty;
+            }
+
+            if ($request->mobile) {
+                $query->where('mobile', $request->mobile)->orWhere('mobile', 'like', '%'.$request->mobile.'%');
+                $this->filter_query['mobile'] = $request->mobile;
+            }
+
+
+            if ($request->category) {
+                $query->where('category_id', $request->category);
+                $this->filter_query['category'] = $request->category; 
+            }
+
+            if ($request->has('reg-start-date') && $request->has('update-end-date')) {
+                $query->whereBetween('created_at', [$request->get('reg-start-date'), $request->get('update-end-date')]);
+                
+                $this->filter_query['reg-start-date'] = $request->get('reg-start-date');
+                
+                $this->filter_query['update-end-date'] = $request->get('update-end-date');
+            }
+          })
+          ->where('branch_id', $branch_id)
+          ->orderBy('id', 'DESC')
+          ->get();
+        $panel="Enquiry";  $data['filter_query']=$this->filter_query;
+        $view_path='student';
+        return view('enquiry.list', compact('enquiries', 'panel', 'view_path', 'data'));
+      
+    }
+
+
+    public function enquiryedit($id)
+    {
+    $org_id = Auth::user()->org_id;
+    $branch_id = Auth::user()->branch_id;
+    $data = Branch:: select('branch_name','branch_title','id','org_id')->where('org_id', $org_id)->get();
+    // $courses = Faculty::select('id', 'faculty')->Active()->pluck('faculty','id')->toArray();
+      $courses = Faculty::select('id', 'faculty', 'status')
+       
+       ->where('org_id' , $org_id)
+       ->where('branch_id' , $branch_id)
+       ->orderBy('faculty')
+       ->get();
+
+    $academic_status = StudentStatus::select('id', 'title')->Active()->pluck('title','id')->toArray();
+
+    $enquiry = Enquiry::where('id', $id)->get();
+    $branch_id = $enquiry[0]['branch_id'];
+    $branch= Branch::where('id', $branch_id)->get();
+    //return $enquiry;
+    $category=category_model::select('category_name','id')->pluck('category_name', 'id')->toArray();
+
+    return view('enquiry.edit', compact('enquiry', 'academic_status','courses','data','branch','category'));
+  
+    }
+
+
+    public function enquiryupdate(Request $request, $id)
+    {   
+        //dd($id);
+        $row = Enquiry::find($id);
+         $row->update($request->all());
+         // return 'updated';
+         // dd();
+        //return $row;
+         //Session::set('branch', $branch_id);
+         //$request['branch_id']=1;
+         //$enquiry = Enquiry::create($request->all());
+         //return'inserted';
+         //return view('enquiry.enquiry');
+         return redirect()->route('.enquiry_list')->with('msg', 'Enquiry updated sucessfully');
+
+    }
+
+}

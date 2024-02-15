@@ -1,0 +1,302 @@
+<?php
+
+use Illuminate\Http\Request;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
+|
+*/
+
+Route::middleware('auth:api')->get('/user', function (Request $request) {
+    return $request->user();
+});
+// Route::middleware('api')->get('/getcourseby{cid}', ['as' => '.getcourse',            'uses' => 'FacultyController@getcourse']);
+
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/getcourseby/{cid}', 'Academic\FacultyController@getcourseapi');
+	
+
+	
+	
+	// Route::get('/posts/{id}', 'PostController@apishow');
+	// Route::get('/categories', 'CategoryController@Apindex');
+	// Route::get('/categories/{id}', 'CategoryController@apishow');
+});
+/*ZOOM MEETINGS*/
+Route::group(['middleware' => 'api'], function(){
+  Route::post('/create-zoom-meeting','VideoConference\ZoomMeetingController@index');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/feebycourse/{id}', 'Academic\FacultyController@feebycourseapi');
+	Route::get('/feebycourse/{id}/{session}', 'Academic\FacultyController@feebycourseapi');
+
+});
+
+Route::group(['middleware' => 'api'], function(){
+	
+	Route::get('/getcourse', 'Academic\FacultyController@getcoursebycollege');
+	
+
+});
+
+Route::group(['middleware' => 'api'], function(){
+	
+	Route::get('/getfeebycourse/{id}', 'Academic\FacultyController@getfeebycourse');
+
+});
+
+// ========== [Start] Student Dashboard / Profile / Fee  ========
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_login', 'Api\ServicesController@asha_login');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_dashboard_info', 'Api\ServicesController@get_dash_board_info');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_profile', 'Api\ServicesController@get_student_profile');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_academic_info', 'Api\ServicesController@get_student_academic');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_note_info', 'Api\ServicesController@get_student_note');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_document_info', 'Api\ServicesController@get_student_document');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_session_info', 'Api\ServicesController@get_student_session_list');
+});
+
+// [FEE: START]
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_fee_head_info', 'Api\ServicesController@get_student_fee_head_list');
+});
+
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_receipt_list', 'Api\ServicesController@get_student_fee_receipt_list');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/get_check_sum_hash', 'Api\ServicesController@getHashFromVal');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::post('/get_check_sum_hash', 'Api\ServicesController@getHashFromVal');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/get_reverse_check_sum_hash', 'Api\ServicesController@checkRevershashVal');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::post('/get_reverse_check_sum_hash', 'Api\ServicesController@checkRevershashVal');
+});
+// [FEE: END]
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_branch_info', 'Api\ServicesController@getBranchInformation');
+});
+
+// ========== [End]Student Dashboard / Profile / Fee ========
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/getfeebycourselist/{id}', 'Api\ServicesController@getfeebycourse');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/getcourselist', 'Api\ServicesController@getcoursebycollege');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/feebycourselist/{id}', 'Api\ServicesController@feebycourseapi');
+});
+
+
+/************** [Start]FEE RECEIPT *************/
+Route::group(['middleware' => 'api'], function(){
+	Route::post('/process_fee_payment', 'Api\ServicesController@fee_payment_process');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/process_fee_payment', 'Api\ServicesController@fee_payment_process');
+});
+
+
+Route::group(['middleware' => 'api'], function(){
+	Route::post('/save_online_fee_payment', 'Api\ServicesController@fee_payment_online_save');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/save_online_fee_payment', 'Api\ServicesController@fee_payment_online_save');
+});
+
+
+/************** [End]FEE RECEIPT *************/
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffdetails/{staff_id}', 'Api\ServicesController@get_Staff_Details');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffdetails', 'Api\ServicesController@get_Staff_Details');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffattendance/{staff_id}/{year_id}/{month_id}', 'Api\ServicesController@get_Staff_Attendance');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffattendance/{staff_id}/{year_id}', 'Api\ServicesController@get_Staff_Attendance');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_attendance/{std_id}/{year_id}/{month_id}', 'Api\ServicesController@get_Student_Attendance_Status');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/student_attendance/{std_id}/{year_id}', 'Api\ServicesController@get_Student_Attendance_Status');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffdocument/{staff_id}', 'Api\ServicesController@get_Staff_Document');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffdocument', 'Api\ServicesController@get_Staff_Document');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/years', 'Api\ServicesController@get_Year_List');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/months', 'Api\ServicesController@get_Month_List');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/attendancetitle', 'Api\ServicesController@get_Attendance_Title');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffnotes/{staff_id}', 'Api\ServicesController@get_Staff_Note');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffnotes', 'Api\ServicesController@get_Staff_Note');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffpayroll/{staff_id}', 'Api\ServicesController@get_Staff_Payroll');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/staffpayroll', 'Api\ServicesController@get_Staff_Payroll');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/addattendance', 'Api\ServicesController@update_student_attendance');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/assignmentlist', 'Api\ServicesController@get_assignment_list');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/addassignment', 'Api\ServicesController@add_assignment');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/addassignmentfile', 'Api\ServicesController@add_assignment_file');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::get('/transportdetails/{memId}/{memType}', 'Api\ServicesController@get_transport_details');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/assignmentsubmit', 'Api\ServicesController@assignment_submitted');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/assignmentcomment', 'Api\ServicesController@post_Assignment_comment_student');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/submittedAssignmentList', 'Api\ServicesController@post_Assignment_submit');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/viewAssignmentAnswer', 'Api\ServicesController@view_assignment_answer');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('/assignmentstatus', 'Api\ServicesController@post_assignment_status');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/branches_list', 'Api\ServicesController@get_branch_list');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/faculty_courses_list', 'Api\ServicesController@get_faculty_course_list');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/faculty_courses_list/{branch_id}', 'Api\ServicesController@get_faculty_course_list');
+});
+
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/session_batch_list', 'Api\ServicesController@get_session_batch_list');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::get('/attendancelist/{sessionId}/{branchId}/{courseId}/{sectionId}', 'Api\ServicesController@get_student_attendance');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::get('/getBranchCourse/{branch_id}', 'Api\ServicesController@get_course_branch');
+});
+ Route::group(['middleware' => 'api'], function(){
+    Route::post('timetable/checkTeacher', 'Api\ServicesController@checkTeacher');
+});
+ 
+ Route::group(['middleware' => 'api'], function(){
+    Route::post('timetable/loadSchedule', 'Api\ServicesController@loadSchedule');
+});
+ Route::group(['middleware' => 'api'], function(){
+    Route::post('timetable/loadSection', 'Api\ServicesController@loadSection');
+});
+ Route::group(['middleware' => 'api'], function(){
+    Route::post('timetable/delete', 'Api\ServicesController@deleteSchedule');
+});
+ Route::group(['middleware' => 'api'], function(){
+    Route::post('timetable/alternateTeacher', 'Api\ServicesController@autoAssign');
+}); 
+ Route::group(['middleware' => 'api'], function(){
+    Route::post('studentTimetable', 'Api\ServicesController@studentTimetable');
+});
+Route::group(['middleware' => 'api'], function(){
+    Route::post('studentDailyTimetable', 'Api\ServicesController@postStudentDailyTimetable');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::get('/get_key_salt/{key_id}', 'Api\ServicesController@get_key_salt_by_key');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::post('/create_zoom_meeting', 'Api\ServicesController@create_zoom_meeting');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::post('/zoom_class_list_staff', 'Api\ServicesController@zoom_class_list_staff');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::post('/zoom_class_list_student', 'Api\ServicesController@zoom_class_list_student');
+});
+Route::group(['middleware' => 'api'], function(){
+	Route::post('/live_class_attendance', 'Api\ServicesController@live_class_attendance');
+	Route::post('/live_meeting_log', 'Api\ServicesController@live_meeting_log');
+	Route::post('/meeting_attendance_list', 'Api\ServicesController@list_attendance');
+	Route::post('/assessment', 'Api\ServicesController@save_assessment');
+	Route::get('/exam_mode', 'Api\ServicesController@get_exam_mode');
+	Route::get('/exam_term', 'Api\ServicesController@get_exam_term');
+	Route::get('/exam_paper', 'Api\ServicesController@get_exam_paper');
+	Route::get('/exam_type', 'Api\ServicesController@get_exam_type');
+	Route::get('/exam', 'Api\ServicesController@get_exam');
+	Route::get('/exam_question', 'Api\ServicesController@get_exam_question');
+	Route::get('/exam_question_type', 'Api\ServicesController@get_exam_question_type');
+	Route::post('/exam_question_answer', 'Api\ServicesController@post_exam_question_answer');
+	Route::get('/exam_by_term', 'Api\ServicesController@get_exam_by_term');
+	Route::post('/student_by_exam', 'Api\ServicesController@get_student_by_exam');
+	Route::get('/show_exam_result', 'Api\ServicesController@show_exam_result');
+	Route::post('/change_password', 'Api\ServicesController@change_password');
+	Route::get('/delete_live_class/{meeting_id}/{user_id}', 'Api\ServicesController@delete_live_class');
+});

@@ -1,0 +1,218 @@
+@extends('layouts.master')
+
+@section('css')
+    <!-- page specific plugin styles -->
+
+    <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}" />
+    @endsection
+
+@section('content')
+
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="page-content">
+                @include('layouts.includes.template_setting')
+
+                <div class="page-header">
+                    <h1>
+                     Reception Manager 
+                        <small>
+                            <i class="ace-icon fa fa-angle-double-right"></i>
+                            Enquiry
+                        </small>
+                    </h1>
+    
+
+                </div><!-- /.page-header -->
+
+                <div class="row">
+                    <div class="col-xs-12 ">
+                 
+                    <!-- PAGE CONTENT BEGINS -->
+                       
+                        <div class="align-right">
+                        <a class="{!! request()->is('student/import*')?'btn-success':'btn-primary' !!} btn-sm" href="{{ route('student.import') }}"><i class="fa fa-upload" aria-hidden="true"></i>&nbsp;Sale Form</a>
+                        </div>
+                        {!! Form::open(['route' => '.enquiry', 'method' => 'POST', 'class' => 'form-horizontal',
+                        'id' => 'validation-form', "enctype" => "multipart/form-data"]) !!}
+<span class="label label-info arrowed-in arrowed-right arrowed responsive">Red mark input are required. </span>
+<hr class="hr-16">
+<div ng-app="myApp" ng-controller="feeCtrl">
+<div class="form-group">
+      
+        
+        {!! Form::hidden('branch_id', $branch_id, ["class" => ""]) !!}
+        
+        
+        
+    {!! Form::label('course', 'Course', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+     <select name="course" id="course" class="form-control">
+        <option value="">Select Course</option>  
+        @foreach ($courses as $x)-->
+            <option value="{{ $x->id }}" >{{ $x->faculty }}</option>
+        @endforeach 
+        </select>
+    </div>
+    
+    
+    {!! Form::label('first_name', 'NAME OF STUDENT', ['class' => 'col-sm-2 control-label',]) !!}
+    <div class="col-sm-2">
+        {!! Form::text('first_name', null, ["class" => "form-control border-form upper",'placeholder' => 'Please write your full name',"required"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'first_name'])
+    </div>
+
+    {!! Form::label('category_id', 'Category', ['class' => 'col-sm-2 control-label']) !!}
+
+    <div class="col-sm-2">
+    {{Form::select('category_id', $category, '', ['class'=>'form-control']) }}
+    
+    {!! Form::hidden('enq_date', date("d-M-Y"), ["class" => "form-control border-form upper"]) !!}
+    
+    @include('includes.form_fields_validation_message', ['name' => 'enq_date'])
+    </div>
+   
+   
+</div>
+<div class="form-group">
+    {!! Form::label('Email', 'Email', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::text('email', null, ["placeholder" => "", "class" => "form-control border-form input-mask-registration"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'reg_no'])
+    </div>
+
+   {!! Form::label('academic_status', 'Academic Status', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+    <select name="academic_status" id="department" class="form-control">
+     <option value="" >Select Status</option>
+     @foreach ($academic_status as $x)
+    <option value="{{ $x}}">{{ $x}}</option>
+        @endforeach 
+        </select>
+    </div>
+    @foreach ($data as $x)
+    <input type="hidden" name="org_id" value="{{$x->org_id}}">
+     @endforeach 
+
+    {!! Form::label('Mobile', 'Mobile.', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::text('mobile', null, ["placeholder" => "", "class" => "form-control border-form mobileKValidationCheck","required"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'university_reg'])
+    </div>
+</div>
+<div class="form-group">
+    {!! Form::label('date_of_birth', 'Date of Birth', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::date('date_of_birth', null, ["data-date-format" => "yyyy-mm-dd", "class" => "form-control border-form date-picker input-mask-date"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'date_of_birth'])
+    </div>
+
+    {!! Form::label('gender', 'Gender', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::select('gender', ['' => 'Select Gender','MALE' => 'MALE', 'FEMALE' => 'FEMALE', 'OTHER' => 'OTHER'], null, ['class'=>'form-control border-form']); !!}
+        @include('includes.form_fields_validation_message', ['name' => 'gender'])
+    </div>
+ 
+
+   
+</div>
+</div>
+<div class="form-group">
+    
+   
+</div>
+
+<div class="label label-warning arrowed-in arrowed-right arrowed">Permanent Address</div>
+<hr class="hr-8">
+<div class="form-group">
+    
+    {!! Form::label('country', 'Country', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-1">
+        {!! Form::text('country', null, ["class" => "form-control border-form upper"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'country'])
+    </div>
+     {!! Form::label('state', 'State', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-1">
+        {!! Form::text('state', null, ["class" => "form-control border-form upper"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'state'])
+    </div>
+    {!! Form::label('city', 'City', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-2">
+        {!! Form::text('city', null, ["class" => "form-control border-form upper"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'city'])
+    </div>
+    
+    {!! Form::label('address', 'Address', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-md-4">
+        {!! Form::text('address', null, ["class" => "form-control border-form upper"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'address'])
+    </div>
+</div>
+<div class="label label-success arrowed-in arrowed-right arrowed">Some Other Info</div>
+<hr class="hr-8">
+<div class="form-group">
+    {!! Form::label('extra_info', 'Extra Info', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-3">
+        {!! Form::text('extra_info', null, ["placeholder" => "", "class" => "form-control border-form input-mask-registration"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'extra_info'])
+    </div>
+
+    {!! Form::label('responce', 'Responce ', ['class' => 'col-sm-1 control-label']) !!}
+    <div class="col-sm-3">
+        {!! Form::text('responce', null, ["class" => "form-control date-picker border-form input-mask-date"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'responce'])
+    </div>
+
+    {!! Form::label('Ref.By:', 'Ref By:', ['class' => 'col-sm-2 control-label']) !!}
+    <div class="col-sm-2">
+         {!! Form::select('refby', ['' => 'Select Reference','google' => 'Google', 'SocialMedia' => 'Social Media', 'Person' => 'Person'], null, ['class'=>'form-control border-form']); !!}
+        @include('includes.form_fields_validation_message', ['name' => 'Reference'])
+    </div>
+    <div class="form-group">
+     {!! Form::label('reference', 'Reference.', ['class' => 'col-sm-3 control-label']) !!}
+    <div class="col-sm-4">
+        {!! Form::text('reference', null, ["placeholder" => "", "class" => "form-control border-form"]) !!}
+        @include('includes.form_fields_validation_message', ['name' => 'reference'])
+    </div>
+
+</div>
+</div>
+
+                        <div class="clearfix form-actions">
+                            <div class="col-md-12 align-right">
+                                <button class="btn" type="reset">
+                                    <i class="icon-undo bigger-110"></i>
+                                    Reset
+                                </button>
+
+                                <button class="btn btn-info" type="submit">
+                                    <i class="icon-ok bigger-110"></i>
+                                    Submit Enquiry
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="hr hr-24"></div>
+
+                        {!! Form::close() !!}
+
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.page-content -->
+        </div>
+    </div><!-- /.main-content -->
+
+
+@endsection
+
+@section('js')
+    <!-- page specific plugin scripts -->
+    @include('includes.scripts.jquery_validation_scripts')
+    @include('student.registration.includes.student-comman-script')
+    @include('includes.scripts.inputMask_script')
+    @include('includes.scripts.datepicker_script')
+    
+@endsection
+
+
+

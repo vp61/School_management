@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers\OnlineAdmission;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\CollegeBaseController;
+use App\Branch;
+use DB;
+use Carbon\Carbon;
+
+class OnlineAdmissionController extends CollegeBaseController
+{
+    protected $base_route = 'OnlineAdmission';
+    protected $view_path = 'OnlineAdmission';
+    protected $panel = 'Online Admission';
+    protected $filter_query = [];
+
+    public function __construct()
+    {
+
+    }
+    public function index(){
+    	$data['image']=asset('assets/images/marine_bg/marine_college_bg.jpg');
+    	$data['branch']=Branch::select('id','branch_name as title')->where([
+    		['is_iimt','=',1]
+    	])->pluck('title','id')->toArray();
+    	$data['branch']=array_prepend($data['branch'],"--Select Branch--",'');
+    	$data['max_age']=Carbon::now()->subYear(17)->format('Y-m-d');
+    	$data['min_age']=Carbon::now()->subYear(25)->format('Y-m-d');
+    	return view($this->view_path.'.index',compact('data'));
+    }
+    public function loadCourseType(Request $request){
+    	$response=[];
+    	$response['error']=true;
+    	if($request->branch_id){
+    		$data=DB::table('course_type')->select('id','title')
+            ->where([
+    			['branch_id','=',$request->branch_id],
+    			['status','=',1]
+		    ])->get();
+            if($data){
+                $response['data']=$data;
+                $response['error']=false;
+                $response['success']=env("course_label")." TYPE FOUND";
+            }
+            else{
+                $response['error']="NO ".env("course_label")." TYPE FOUND";
+            }
+    	}else{
+            $response['message']="Invalid Request!";
+        }
+        return response()->json(json_encode($response));
+    }
+}
+
+
+

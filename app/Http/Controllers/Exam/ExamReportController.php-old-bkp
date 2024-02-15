@@ -1,0 +1,181 @@
+<?php
+
+namespace App\Http\Controllers\Exam;
+
+use App\Http\Controllers\CollegeBaseController;
+use Illuminate\Http\Request;
+use App\Models\Exam\ExamCreate;
+use App\Models\Exam\ExamMode;
+use App\Models\Exam\ExamType;
+use App\Models\Exam\ExamTerm;
+use App\Models\Exam\ExamPaper;
+use App\Models\Exam\ExamAddQuestion;
+use App\Models\Exam\ExamQuestionType;
+use App\Models\Faculty;
+use Carbon\Carbon;
+use Session,DB;
+
+class ExamReportController extends CollegeBaseController
+{
+    protected $base_route = 'exam.report';
+    protected $view_path = 'exam.report';
+    protected $panel = 'Exam Report';
+    protected $filter_query = [];
+
+    public function __construct()
+    {
+
+    }
+
+    public function index(Request $request)
+    {
+        $dropdowns = $this->get_table_and_dropdown(); 
+        return view(parent::loadDataToView($this->view_path.'.index'), compact('dropdowns'));
+    }
+    public function store(Request $request)
+    {
+        $msg=[
+            'title.required'=>"Please Enter Title",
+        ];
+        $rules=[
+            'title'=>'required',
+        ];
+        $this->validate($request,$rules,$msg);
+        $request->request->add(['created_at'=>Carbon::now()]);
+        $request->request->add(['created_by'=>auth()->user()->id]);
+        $request->request->add(['record_status'=>1]);
+        $request->request->add(['branch_id'=>Session::get('activeBranch')]);
+        $request->request->add(['session_id'=>Session::get('activeSession')]);
+        ExamPaper::create($request->all()); 
+         $request->session()->flash($this->message_success, $this->panel.' Added Successfully.');
+        return back();
+    }
+    public function edit(Request $request,$id){
+        $data['row']=ExamPaper::find($id);
+        if(!$data['row']){
+            parent::invalidRequest();
+        }
+        if($request->all() ){
+            $msg=[
+            'title.required'=>"Please Enter Title",
+            ];
+            $rules=[
+                'title'=>'required',
+            ];
+            $this->validate($request,$rules,$msg);
+            $request->request->add(['updated_at'=>Carbon::now()]);
+            $request->request->add(['updated_by'=>auth()->user()->id]);
+            $data['row']->update($request->all());
+            return redirect()->route($this->base_route)->with('message_success', $this->panel.' Updated Successfully');
+        }
+         $data['exam-paper'] = ExamPaper::where([
+            ['record_status','=',1],
+            ['branch_id','=',Session::get('activeBranch')],
+            ['session_id','=',Session::get('activeSession')],
+        ])->select('*')->get();
+        return view(parent::loadDataToView($this->view_path.'.index'),compact('data','id'));
+    }          
+    public function delete(Request $request, $id)
+    {
+       $data['row']=ExamPaper::find($id);
+        if(!$data['row']){
+            parent::invalidRequest();
+        }
+        $request->request->add(['record_status'=>0]);
+            $data['row']->update($request->all());
+        return redirect()->route($this->base_route)->with('message_success', $this->panel.' Deleted Successfully');    
+    }
+    public function generate(Request $request){
+        // dd($request->all());
+        // $type = $request->term;
+        $branch = DB::table('branches')->select('*')->where('id',Session::get('activeBranch'))->first();
+        $student = DB::table('student_detail_sessionwise')->select('std.first_name','std.reg_no','std.date_of_birth','std.gender','fac.faculty as course','sem.semester','pd.father_first_name','std.student_image')
+        ->leftjoin('students as std','std.id','=','student_detail_sessionwise.student_id')
+        ->leftjoin('faculties as fac','fac.id','=','student_detail_sessionwise.course_id')
+        ->leftjoin('semesters as sem','sem.id','=','student_detail_sessionwise.Semester')
+        ->leftjoin('parent_details as pd','pd.students_id','=','student_detail_sessionwise.student_id')
+        ->where([
+            ['student_detail_sessionwise.course_id','=',$request->course],
+            ['student_detail_sessionwise.Semester','=',$request->section],
+            ['student_detail_sessionwise.session_id','=',Session::get('activeSession')],
+            ['student_detail_sessionwise.active_status','=',1],
+            ['student_detail_sessionwise.student_id','=',$request->student]
+        ])->first();
+        // dd($student);
+        // if($type == '1'){
+            $exams = ExamCreate::select('exam_create.id','exam_create.title','exam_create.max_mark','exam_create.pass_mark','et.title as exam_term','em.mark as obtained_mark','em.attendance','type.title as exam_type','ts.title as subject')->where([
+                ['exam_create.faculty_id','=',$request->course],
+                ['exam_create.section_id','=',$request->section],
+                ['exam_create.term_id','=',$request->term],
+                ['exam_create.type_id','=',$request->type_id],
+                ['exam_create.session_id','=',Session::get('activeSession')],
+                ['exam_create.branch_id','=',Session::get('activeBranch')],
+                ['exam_create.result_status','=',1],
+            ])
+            ->leftjoin('exam_terms as et','et.id','=','exam_create.term_id')
+            ->leftjoin('exam_type as type','type.id','=','exam_create.type_id')
+            ->leftjoin('timetable_subjects as ts','ts.id','=','exam_create.subject_id')
+            ->leftjoin('exam_mark as em',function($j)use($request){
+                $j->on('em.exam_id','=','exam_create.id')
+                ->where('em.student_id',$request->student);
+            })
+            ->get();
+             // dd($student);
+            foreach ($exams as $key => $value) {
+               $data[$value->exam_term][$value->exam_type][$value->id]=$value;
+            }
+            $cnt =  0;
+           
+        // }elseif($type == '2'){
+
+        // }else{
+
+        // }
+        // dd($data);
+       return view(parent::loadDataToView($this->view_path.'.generate'),compact('data','branch','student'));  
+    }
+    public function get_table_and_dropdown(){
+        $data['mode'] = ExamMode::where([
+            ['record_status','=',1],
+        ])->select('id','title')->pluck('title','id')->toArray();
+        $data['mode'] = array_prepend($data['mode'],'--Select Exam Mode--','');
+
+        $data['term'] = ExamTerm::where([
+            ['record_status','=',1],
+            ['branch_id','=',Session::get('activeBranch')],
+            ['session_id','=',Session::get('activeSession')],
+        ])->select('id','title')->pluck('title','id')->toArray();
+        $data['term'] = array_prepend($data['term'],'--Select Term--','');
+        
+        $data['paper-type'] = ExamPaper::where([
+            ['record_status','=',1],
+            ['branch_id','=',Session::get('activeBranch')],
+            ['session_id','=',Session::get('activeSession')],
+        ])->select('id','title')->pluck('title','id')->toArray();
+        $data['paper-type'] = array_prepend($data['paper-type'],'--Select Paper Type--','');
+
+        $data['faculty'] = Faculty::where([
+            ['status','=',1],
+            ['branch_id','=',Session::get('activeBranch')],
+        ])->select('id','faculty as title')->orderBy('title','asc')->pluck('title','id')->toArray();
+        $data['faculty'] = array_prepend($data['faculty'],'--Select '.env('course_label').'--','');
+         $data['exam'] = ExamCreate::where([
+            ['exam_create.record_status','=',1],
+            ['exam_create.branch_id','=',Session::get('activeBranch')],
+            ['exam_create.session_id','=',Session::get('activeSession')],
+        ])->select('exam_create.id','exam_create.title as exam_title','exam_create.description as exam_description','term.title as term','type.title as type','fac.faculty as faculty','sem.semester as section','mode.title as mode','paper.title as paper','sub.title as subject','max_mark','pass_mark')
+         ->leftjoin('exam_terms as term','term.id','=','exam_create.term_id')
+         ->leftjoin('exam_type as type','type.id','=','exam_create.type_id')
+         ->leftjoin('faculties as fac','fac.id','=','exam_create.faculty_id')
+         ->leftjoin('semesters as sem','sem.id','=','exam_create.section_id')
+         ->leftjoin('exam_modes as mode','mode.id','=','exam_create.mode_id')
+         ->leftjoin('exam_papers as paper','paper.id','=','exam_create.paper_type')
+         ->leftjoin('timetable_subjects as sub','sub.id','=','exam_create.subject_id')
+         ->get();
+        return $data;
+    }
+    public function assessment(){
+        $dropdowns = $this->get_table_and_dropdown(); 
+        return view(parent::loadDataToView($this->view_path.'.assessment'),compact('dropdowns'));
+    }
+}
