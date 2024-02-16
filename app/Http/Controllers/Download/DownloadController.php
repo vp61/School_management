@@ -11,6 +11,7 @@ use App\Models\Year;
 use Illuminate\Http\Request;
 use ViewHelper;
 use view;
+use DB;
 
 class DownloadController extends CollegeBaseController
 {
