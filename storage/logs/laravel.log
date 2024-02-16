@@ -23270,3 +23270,37 @@ Stack trace:
 [stacktrace]
 #0 {main}
 "} 
+[2024-02-16 20:52:11] live.ERROR: Uncaught Error: Call to undefined method App\Http\Kernel::getMiddlewareGroups() in Command line code:1
+Stack trace:
+#0 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught Error: Call to undefined method App\\Http\\Kernel::getMiddlewareGroups() in Command line code:1
+Stack trace:
+#0 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-02-16 20:52:11] live.ERROR: syntax error, unexpected 'public' (T_PUBLIC), expecting end of file {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 4): syntax error, unexpected 'public' (T_PUBLIC), expecting end of file at C:\\xampp\\htdocs\s-world-11Apr2023\\School_management\\app\\helpers.php:4)
+[stacktrace]
+#0 {main}
+"} 
+[2024-02-16 20:52:11] live.ERROR: Uncaught ReflectionException: Class App\Policies\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct('App\\Policies\\Mo...')
+#1 [internal function]: {closure}('App\\Policies\\Mo...', 'App\\Model')
+#2 Command line code(1): array_map(Object(Closure), Array, Array)
+#3 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 1): Uncaught ReflectionException: Class App\\Policies\\ModelPolicy does not exist in Command line code:1
+Stack trace:
+#0 Command line code(1): ReflectionClass->__construct('App\\\\Policies\\\\Mo...')
+#1 [internal function]: {closure}('App\\\\Policies\\\\Mo...', 'App\\\\Model')
+#2 Command line code(1): array_map(Object(Closure), Array, Array)
+#3 {main}
+  thrown at Command line code:1)
+[stacktrace]
+#0 {main}
+"} 
+[2024-02-16 20:52:15] live.ERROR: syntax error, unexpected 'public' (T_PUBLIC), expecting end of file {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalErrorException(code: 4): syntax error, unexpected 'public' (T_PUBLIC), expecting end of file at C:\\xampp\\htdocs\s-world-11Apr2023\\School_management\\app\\helpers.php:4)
+[stacktrace]
+#0 {main}
+"} 
